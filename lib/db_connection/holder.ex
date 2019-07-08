@@ -50,6 +50,7 @@ defmodule DBConnection.Holder do
   @callback checkout(pool :: GenServer.server(), opts :: Keyword.t()) ::
               {:ok, pool_ref :: any, module, state :: any} | {:error, Exception.t()}
   def checkout(pool, opts) do
+    IO.puts "[Debug] DBConnection.Holder.checkout"
     caller = Keyword.get(opts, :caller, self())
     callers = [caller | Process.get(:"$callers") || []]
 
@@ -221,6 +222,10 @@ defmodule DBConnection.Holder do
   ## Private
 
   defp checkout(pool, callers, queue?, start, timeout) do
+    IO.puts "[debug] DBConnection.Holder.checkout(private)"
+    IO.puts "[debug] pool=#{inspect pool}"
+    IO.puts "[Debug] case=#{inspect GenServer.whereis(pool)}"
+    IO.puts ""
     case GenServer.whereis(pool) do
       pid when node(pid) == node() ->
         checkout_call(pid, callers, queue?, start, timeout)
@@ -237,6 +242,9 @@ defmodule DBConnection.Holder do
   end
 
   defp checkout_call(pid, callers, queue?, start, timeout) do
+    IO.puts "[debug] DBConnection.Holder.checkout_call"
+    IO.puts "[debug] timeout=#{inspect timeout}"
+    IO.puts ""
     lock = Process.monitor(pid)
     send(pid, {:db_connection, {self(), lock}, {:checkout, callers, start, queue?}})
 
@@ -261,6 +269,7 @@ defmodule DBConnection.Holder do
   end
 
   defp checkout_result(holder, pool_ref) do
+    IO.puts "[debug] DBConnection.Holder.checkout_result"
     try do
       :ets.lookup(holder, :conn)
     rescue
@@ -270,6 +279,7 @@ defmodule DBConnection.Holder do
         {:error, DBConnection.ConnectionError.exception(msg)}
     else
       [conn(module: mod, state: state)] ->
+        IO.puts "[debug] args=#{inspect {:ok, pool_ref, mod, state}}"
         {:ok, pool_ref, mod, state}
     end
   end

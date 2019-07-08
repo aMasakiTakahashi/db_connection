@@ -52,6 +52,7 @@ defmodule DBConnection.ConnectionPool do
 
   def handle_info({:db_connection, from, {:checkout, _caller, _now, _queue?}} = checkout, ready) do
     IO.puts "[Debug] DBConnection.ConnectionPool ready checkout"
+    IO.puts "[Debug] ready=#{inspect ready}"
     IO.puts ""
     {:ready, queue, _codel} = ready
     case :ets.first(queue) do
