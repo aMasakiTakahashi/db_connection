@@ -94,6 +94,8 @@ defmodule DBConnection.Holder do
 
   @spec handle(pool_ref :: any, fun :: atom, args :: [term], Keyword.t()) :: tuple
   def handle(pool_ref, fun, args, opts) do
+    IO.puts "[Debug] DBConnection.Holder.handle"
+    IO.puts ""
     handle_or_cleanup(:handle, pool_ref, fun, args, opts)
   end
 
@@ -103,6 +105,7 @@ defmodule DBConnection.Holder do
   end
 
   defp handle_or_cleanup(type, pool_ref, fun, args, opts) do
+    IO.puts "[Debug] DBConnection.Holder.handle_or_cleanup"
     pool_ref(holder: holder, lock: lock) = pool_ref
 
     try do
@@ -124,6 +127,9 @@ defmodule DBConnection.Holder do
         {:disconnect, DBConnection.ConnectionError.exception(msg), _state = :unused}
 
       [conn(module: module, state: state)] ->
+        IO.puts "[debug] DBConnection.Holder.handle_or_cleanup ok"
+        IO.inspect module
+        IO.puts ""
         holder_apply(holder, module, fun, args ++ [opts, state])
     end
   end

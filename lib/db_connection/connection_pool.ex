@@ -10,7 +10,14 @@ defmodule DBConnection.ConnectionPool do
   @time_unit 1000
 
   def start_link({mod, opts}) do
-    GenServer.start_link(__MODULE__, {mod, opts}, start_opts(opts))
+    IO.puts "[Debug] DBConnection.ConnectionPool.start_link"
+    IO.puts "[Debug] self=#{inspect self()}"
+    IO.puts ""
+    x = GenServer.start_link(__MODULE__, {mod, opts}, start_opts(opts))
+    IO.puts "[Debug] DBConnection.ConnectionPool.start_link after"
+    IO.puts "result_of_start_link=#{inspect x}"
+    IO.puts ""
+    x
   end
 
   ## GenServer api
@@ -29,6 +36,8 @@ defmodule DBConnection.ConnectionPool do
   end
 
   def handle_info({:db_connection, from, {:checkout, _caller, now, queue?}}, {:busy, queue, _} = busy) do
+    IO.puts "[Debug] DBConnection.ConnectionPool busy checkout"
+    IO.puts ""
     case queue? do
       true ->
         :ets.insert(queue, {{now, System.unique_integer(), from}})
@@ -42,6 +51,8 @@ defmodule DBConnection.ConnectionPool do
   end
 
   def handle_info({:db_connection, from, {:checkout, _caller, _now, _queue?}} = checkout, ready) do
+    IO.puts "[Debug] DBConnection.ConnectionPool ready checkout"
+    IO.puts ""
     {:ready, queue, _codel} = ready
     case :ets.first(queue) do
       {_time, holder} = key ->
