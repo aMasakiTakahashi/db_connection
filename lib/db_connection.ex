@@ -1324,7 +1324,7 @@ defmodule DBConnection do
     fun.(conn, meter, opts)
   end
   defp run(pool, fun, meter, opts) do
-    IO.put "[Debug] DBConnection.run 1"
+    IO.puts "[Debug] DBConnection.run 1"
     IO.puts ""
     with {:ok, conn, meter} <- checkout(pool, meter, opts) do
       try do
