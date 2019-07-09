@@ -14,8 +14,8 @@ defmodule DBConnection.Connection do
 
   @doc false
   def start_link(mod, opts, pool, tag) do
-    IO.puts "[Debug] DBConnection.Connection.start_linkt"
-    IO.puts ""
+    DBConnection.Debug.debug "[Debug] DBConnection.Connection.start_linkt"
+    DBConnection.Debug.debug ""
     start_opts = Keyword.take(opts, [:debug, :spawn_opt])
     Connection.start_link(__MODULE__, {mod, opts, pool, tag}, start_opts)
   end
@@ -47,10 +47,10 @@ defmodule DBConnection.Connection do
 
   @doc false
   def init({mod, opts, pool, tag}) do
-    IO.puts "[Debug] DBConnection.Connection.init"
-    IO.puts "[Debug] self=#{inspect self()}"
-    IO.puts "[Debug] args=#{inspect [mod, opts, pool]}"
-    IO.puts ""
+    DBConnection.Debug.debug "[Debug] DBConnection.Connection.init"
+    DBConnection.Debug.debug "[Debug] self=#{inspect self()}"
+    DBConnection.Debug.debug "[Debug] args=#{inspect [mod, opts, pool]}"
+    DBConnection.Debug.debug ""
     s = %{
       mod: mod,
       opts: opts,
@@ -69,8 +69,8 @@ defmodule DBConnection.Connection do
 
   @doc false
   def connect(_, s) do
-    IO.puts "[Debug] DBConnection.Connection.connect"
-    IO.puts ""
+    DBConnection.Debug.debug "[Debug] DBConnection.Connection.connect"
+    DBConnection.Debug.debug ""
     %{mod: mod, opts: opts, backoff: backoff, after_connect: after_connect} = s
 
     try do
@@ -123,8 +123,8 @@ defmodule DBConnection.Connection do
 
   @doc false
   def disconnect({log, err}, %{mod: mod} = s) do
-    IO.puts "[Debug] DBConnection.Connection.disconnect"
-    IO.puts ""
+    DBConnection.Debug.debug "[Debug] DBConnection.Connection.disconnect"
+    DBConnection.Debug.debug ""
     case log do
       :nolog ->
         :ok

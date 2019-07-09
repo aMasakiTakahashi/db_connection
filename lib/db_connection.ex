@@ -528,9 +528,9 @@ defmodule DBConnection do
     {:ok, query, result} |
     {:error, Exception.t}
   def prepare_execute(conn, query, params, opts \\ []) do
-      IO.puts "[Debug] DBConnection.prepare_execute"
-      IO.puts "conn=#{inspect conn}"
-      IO.puts ""
+      DBConnection.Debug.debug "[Debug] DBConnection.prepare_execute"
+      DBConnection.Debug.debug "[Debug] conn=#{inspect conn}"
+      DBConnection.Debug.debug ""
     result =
       with {:ok, query, meter} <- parse(query, meter(opts), opts) do
         parsed_prepare_execute(conn, query, params, meter, opts)
@@ -540,7 +540,7 @@ defmodule DBConnection do
   end
 
   defp parsed_prepare_execute(conn, query, params, meter, opts) do
-    IO.puts "[Debug] DBConnection.parsed_prepare_execute"
+    DBConnection.Debug.debug "[Debug] DBConnection.parsed_prepare_execute"
     with {:ok, query, result, meter} <- run(conn, &run_prepare_execute/5, query, params, meter, opts),
          {:ok, result, meter} <- decode(query, result, meter, opts) do
       {:ok, query, result, meter}
@@ -713,11 +713,11 @@ defmodule DBConnection do
     fun.(conn)
   end
   def run(pool, fun, opts) do
-    IO.puts "[Debug] DBConnection.run"
+    DBConnection.Debug.debug "[Debug] DBConnection.run"
     case checkout(pool, nil, opts) do
       {:ok, conn, _} ->
-        IO.puts "[Debug] conn=#{inspect conn}"
-        IO.puts ""
+        DBConnection.Debug.debug "[Debug] conn=#{inspect conn}"
+        DBConnection.Debug.debug ""
         old_status = status(conn, opts)
 
         try do
@@ -1125,8 +1125,8 @@ defmodule DBConnection do
   end
 
   defp parse(query, meter, opts) do
-    IO.puts "[Debug] DBConnection.parse"
-    IO.puts ""
+    DBConnection.Debug.debug "[Debug] DBConnection.parse"
+    DBConnection.Debug.debug ""
     try do
       DBConnection.Query.parse(query, opts)
     catch
@@ -1251,8 +1251,8 @@ defmodule DBConnection do
   end
 
   defp run_prepare_execute(conn, query, params, meter, opts) do
-    IO.puts "[Debug] DBConnection.run_prepare_execute"
-    IO.puts ""
+    DBConnection.Debug.debug "[Debug] DBConnection.run_prepare_execute"
+    DBConnection.Debug.debug ""
     with {:ok, query, meter} <- run_prepare(conn, query, meter, opts),
          {:ok, params, meter} <- encode(conn, query, params, meter, opts) do
       run_execute(conn, query, params, meter, opts)
@@ -1260,8 +1260,8 @@ defmodule DBConnection do
   end
 
   defp run_execute(conn, query, params, meter, opts) do
-    IO.puts "[Debug] DBConnection.run_execute"
-    IO.puts ""
+    DBConnection.Debug.debug "[Debug] DBConnection.run_execute"
+    DBConnection.Debug.debug ""
     %DBConnection{pool_ref: pool_ref} = conn
     meter = event(meter, :execute)
 
@@ -1324,8 +1324,8 @@ defmodule DBConnection do
     fun.(conn, meter, opts)
   end
   defp run(pool, fun, meter, opts) do
-    IO.puts "[Debug] DBConnection.run 1"
-    IO.puts ""
+    DBConnection.Debug.debug "[Debug] DBConnection.run 1"
+    DBConnection.Debug.debug ""
     with {:ok, conn, meter} <- checkout(pool, meter, opts) do
       try do
         fun.(conn, meter, opts)
@@ -1339,8 +1339,8 @@ defmodule DBConnection do
     fun.(conn, arg, meter, opts)
   end
   defp run(pool, fun, arg, meter, opts) do
-    IO.puts "[Debug] DBConnection.run 2"
-    IO.puts ""
+    DBConnection.Debug.debug "[Debug] DBConnection.run 2"
+    DBConnection.Debug.debug ""
     with {:ok, conn, meter} <- checkout(pool, meter, opts) do
       try do
         fun.(conn, arg, meter, opts)
@@ -1354,11 +1354,11 @@ defmodule DBConnection do
     fun.(conn, arg1, arg2, meter, opts)
   end
   defp run(pool, fun, arg1, arg2, meter, opts) do
-    IO.puts "[Debug] DBConnection.run 3 1"
+    DBConnection.Debug.debug "[Debug] DBConnection.run 3 1"
     with {:ok, conn, meter} <- checkout(pool, meter, opts) do
-      IO.puts "[Debug] DBConnection.run 3 2"
-      IO.puts "conn=#{inspect conn}"
-      IO.puts ""
+      DBConnection.Debug.debug "[Debug] DBConnection.run 3 2"
+      DBConnection.Debug.debug "[Debug] conn=#{inspect conn}"
+      DBConnection.Debug.debug ""
       try do
         fun.(conn, arg1, arg2, meter, opts)
       after

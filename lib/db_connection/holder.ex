@@ -50,7 +50,7 @@ defmodule DBConnection.Holder do
   @callback checkout(pool :: GenServer.server(), opts :: Keyword.t()) ::
               {:ok, pool_ref :: any, module, state :: any} | {:error, Exception.t()}
   def checkout(pool, opts) do
-    IO.puts "[Debug] DBConnection.Holder.checkout"
+    DBConnection.Debug.debug "[Debug] DBConnection.Holder.checkout"
     caller = Keyword.get(opts, :caller, self())
     callers = [caller | Process.get(:"$callers") || []]
 
@@ -95,8 +95,8 @@ defmodule DBConnection.Holder do
 
   @spec handle(pool_ref :: any, fun :: atom, args :: [term], Keyword.t()) :: tuple
   def handle(pool_ref, fun, args, opts) do
-    IO.puts "[Debug] DBConnection.Holder.handle"
-    IO.puts ""
+    DBConnection.Debug.debug "[Debug] DBConnection.Holder.handle"
+    DBConnection.Debug.debug ""
     handle_or_cleanup(:handle, pool_ref, fun, args, opts)
   end
 
@@ -106,7 +106,7 @@ defmodule DBConnection.Holder do
   end
 
   defp handle_or_cleanup(type, pool_ref, fun, args, opts) do
-    IO.puts "[Debug] DBConnection.Holder.handle_or_cleanup"
+    DBConnection.Debug.debug "[Debug] DBConnection.Holder.handle_or_cleanup"
     pool_ref(holder: holder, lock: lock) = pool_ref
 
     try do
@@ -128,9 +128,9 @@ defmodule DBConnection.Holder do
         {:disconnect, DBConnection.ConnectionError.exception(msg), _state = :unused}
 
       [conn(module: module, state: state)] ->
-        IO.puts "[debug] DBConnection.Holder.handle_or_cleanup ok"
+        DBConnection.Debug.debug "[Debug] DBConnection.Holder.handle_or_cleanup ok"
         IO.inspect module
-        IO.puts ""
+        DBConnection.Debug.debug ""
         holder_apply(holder, module, fun, args ++ [opts, state])
     end
   end
@@ -222,10 +222,10 @@ defmodule DBConnection.Holder do
   ## Private
 
   defp checkout(pool, callers, queue?, start, timeout) do
-    IO.puts "[debug] DBConnection.Holder.checkout(private)"
-    IO.puts "[debug] pool=#{inspect pool}"
-    IO.puts "[Debug] case=#{inspect GenServer.whereis(pool)}"
-    IO.puts ""
+    DBConnection.Debug.debug "[Debug] DBConnection.Holder.checkout(private)"
+    DBConnection.Debug.debug "[Debug] pool=#{inspect pool}"
+    DBConnection.Debug.debug "[Debug] case=#{inspect GenServer.whereis(pool)}"
+    DBConnection.Debug.debug ""
     case GenServer.whereis(pool) do
       pid when node(pid) == node() ->
         checkout_call(pid, callers, queue?, start, timeout)
@@ -242,9 +242,9 @@ defmodule DBConnection.Holder do
   end
 
   defp checkout_call(pid, callers, queue?, start, timeout) do
-    IO.puts "[debug] DBConnection.Holder.checkout_call"
-    IO.puts "[debug] timeout=#{inspect timeout}"
-    IO.puts ""
+    DBConnection.Debug.debug "[Debug] DBConnection.Holder.checkout_call"
+    DBConnection.Debug.debug "[Debug] timeout=#{inspect timeout}"
+    DBConnection.Debug.debug ""
     lock = Process.monitor(pid)
     send(pid, {:db_connection, {self(), lock}, {:checkout, callers, start, queue?}})
 
@@ -269,7 +269,7 @@ defmodule DBConnection.Holder do
   end
 
   defp checkout_result(holder, pool_ref) do
-    IO.puts "[debug] DBConnection.Holder.checkout_result"
+    DBConnection.Debug.debug "[Debug] DBConnection.Holder.checkout_result"
     try do
       :ets.lookup(holder, :conn)
     rescue
@@ -279,7 +279,7 @@ defmodule DBConnection.Holder do
         {:error, DBConnection.ConnectionError.exception(msg)}
     else
       [conn(module: mod, state: state)] ->
-        IO.puts "[debug] args=#{inspect {:ok, pool_ref, mod, state}}"
+        DBConnection.Debug.debug "[Debug] args=#{inspect {:ok, pool_ref, mod, state}}"
         {:ok, pool_ref, mod, state}
     end
   end

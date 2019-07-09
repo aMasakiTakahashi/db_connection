@@ -3,9 +3,9 @@ defmodule DBConnection.ConnectionPool.Pool do
   use Supervisor, restart: :temporary
 
   def start_supervised(tag, mod, opts) do
-    IO.puts "[Debug] DBConnection.ConnectionPool.Pool.start_supervised"
-    IO.puts "[Debug] args=#{inspect [mod, opts]}"
-    IO.puts ""
+    DBConnection.Debug.debug "[Debug] DBConnection.ConnectionPool.Pool.start_supervised"
+    DBConnection.Debug.debug "[Debug] args=#{inspect [mod, opts]}"
+    DBConnection.Debug.debug ""
     DBConnection.Watcher.watch(
       DBConnection.ConnectionPool.Supervisor,
       {DBConnection.ConnectionPool.Pool, {self(), tag, mod, opts}}
@@ -17,9 +17,9 @@ defmodule DBConnection.ConnectionPool.Pool do
   end
 
   def init({owner, tag, mod, opts}) do
-    IO.puts "[Debug] DBConnection.ConnectionPool.Pool.init"
-    IO.puts "[Debug] self=#{inspect self()}"
-    IO.puts ""
+    DBConnection.Debug.debug "[Debug] DBConnection.ConnectionPool.Pool.init"
+    DBConnection.Debug.debug "[Debug] self=#{inspect self()}"
+    DBConnection.Debug.debug ""
     size = Keyword.get(opts, :pool_size, 1)
     children = for id <- 1..size, do: conn(owner, tag, id, mod, opts)
     sup_opts = [strategy: :one_for_one] ++ Keyword.take(opts, [:max_restarts, :max_seconds])

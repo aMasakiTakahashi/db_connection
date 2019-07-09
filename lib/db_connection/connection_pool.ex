@@ -10,13 +10,13 @@ defmodule DBConnection.ConnectionPool do
   @time_unit 1000
 
   def start_link({mod, opts}) do
-    IO.puts "[Debug] DBConnection.ConnectionPool.start_link"
-    IO.puts "[Debug] self=#{inspect self()}"
-    IO.puts ""
+    DBConnection.Debug.debug "[Debug] DBConnection.ConnectionPool.start_link"
+    DBConnection.Debug.debug "[Debug] self=#{inspect self()}"
+    DBConnection.Debug.debug ""
     x = GenServer.start_link(__MODULE__, {mod, opts}, start_opts(opts))
-    IO.puts "[Debug] DBConnection.ConnectionPool.start_link after"
-    IO.puts "result_of_start_link=#{inspect x}"
-    IO.puts ""
+    DBConnection.Debug.debug "[Debug] DBConnection.ConnectionPool.start_link after"
+    DBConnection.Debug.debug "[Debug] result_of_start_link=#{inspect x}"
+    DBConnection.Debug.debug ""
     x
   end
 
@@ -36,8 +36,8 @@ defmodule DBConnection.ConnectionPool do
   end
 
   def handle_info({:db_connection, from, {:checkout, _caller, now, queue?}}, {:busy, queue, _} = busy) do
-    IO.puts "[Debug] DBConnection.ConnectionPool busy checkout"
-    IO.puts ""
+    DBConnection.Debug.debug "[Debug] DBConnection.ConnectionPool busy checkout"
+    DBConnection.Debug.debug ""
     case queue? do
       true ->
         :ets.insert(queue, {{now, System.unique_integer(), from}})
@@ -51,9 +51,9 @@ defmodule DBConnection.ConnectionPool do
   end
 
   def handle_info({:db_connection, from, {:checkout, _caller, _now, _queue?}} = checkout, ready) do
-    IO.puts "[Debug] DBConnection.ConnectionPool ready checkout"
-    IO.puts "[Debug] ready=#{inspect ready}"
-    IO.puts ""
+    DBConnection.Debug.debug "[Debug] DBConnection.ConnectionPool ready checkout"
+    DBConnection.Debug.debug "[Debug] ready=#{inspect ready}"
+    DBConnection.Debug.debug ""
     {:ready, queue, _codel} = ready
     case :ets.first(queue) do
       {_time, holder} = key ->
