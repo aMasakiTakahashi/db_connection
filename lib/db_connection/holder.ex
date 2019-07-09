@@ -129,7 +129,6 @@ defmodule DBConnection.Holder do
 
       [conn(module: module, state: state)] ->
         DBConnection.Debug.debug "[Debug] DBConnection.Holder.handle_or_cleanup ok"
-        IO.inspect module
         DBConnection.Debug.debug ""
         holder_apply(holder, module, fun, args ++ [opts, state])
     end
